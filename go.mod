@@ -1,3 +1,3 @@
 module github.com/C2Devel/ec2-agent
 
-go 1.25.11
+go 1.23
