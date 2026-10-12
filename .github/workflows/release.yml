@@ -24,8 +24,72 @@ jobs:
       release_type: ${{ github.event.inputs.release_type }}
     secrets: inherit
 
-  # call-public-push-workflow:
-  #   needs: [call-release-workflow]
-  #   if: ${{ github.event.inputs.release_type != 'rc' }}
-  #   uses: c2/gha-workflows/.github/workflows/public-push.yml@master
-  #   secrets: inherit
+  build-deb:
+    needs: [call-release-workflow]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Prepare deb version
+        id: debver
+        env:
+          NEW_TAG: ${{ needs.call-release-workflow.outputs.new_tag }}
+        run: |
+          # new_tag is RPM-style, e.g. 0.1.0-ROCKIT11.rc1 or 0.1.0-ROCKIT11
+          upstream=$(echo "$NEW_TAG" | cut -d'-' -f1)          # 0.1.0
+          vendor_number=$(echo "$NEW_TAG" | grep -oE '[A-Z]+[0-9]+' | grep -oE '[0-9]+' || echo 1)
+          rc_number=$(echo "$NEW_TAG" | grep -oE 'rc[0-9]+' | grep -oE '[0-9]+' || true)
+
+          if [ -n "$rc_number" ]; then
+            # Pre-release: use tilde so it sorts before the final release (0.1.0~rc1 < 0.1.0)
+            DEB_VERSION="${upstream}~rc${rc_number}"
+            DEB_RELEASE="1"
+          else
+            DEB_VERSION="${upstream}"
+            DEB_RELEASE="${vendor_number}"
+          fi
+
+          echo "DEB_VERSION=$DEB_VERSION" >> $GITHUB_OUTPUT
+          echo "DEB_RELEASE=$DEB_RELEASE" >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run GoReleaser (deb only)
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          version: '~> v2'
+          args: release --config .goreleaser.deb.yaml --clean --skip=publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DEB_VERSION: ${{ steps.debver.outputs.DEB_VERSION }}
+          DEB_RELEASE: ${{ steps.debver.outputs.DEB_RELEASE }}
+
+      - name: Upload deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ec2-agent-deb
+          path: dist/*.deb
+          if-no-files-found: error
+
+      - name: Attach deb to private release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.call-release-workflow.outputs.new_tag }}
+          files: dist/*.deb
+          token: ${{ secrets.AUTOMATION_PAT }}
+
+  call-public-push-workflow:
+    needs: [build-deb]
+    if: ${{ github.event.inputs.release_type != 'rc' }}
+    uses: c2/gha-workflows/.github/workflows/public-push.yml@master
+    with:
+      tag: ${{ needs.call-release-workflow.outputs.new_tag }}
+      need_release: 'true'
+    secrets: inherit
