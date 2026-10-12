@@ -18,5 +18,5 @@ concurrency:
 jobs:
   call-workflow:
     if: github.event.pull_request.merged == true
-    uses: c2/gha-workflows/.github/workflows/deps-merge-packaging.yml@master
+    uses: c2/gha-workflows/.github/workflows/deps-merge-packaging.yml@C2DEVEL-21466
     secrets: inherit
