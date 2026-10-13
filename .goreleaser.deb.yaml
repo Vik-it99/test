@@ -29,7 +29,6 @@ nfpms:
     description: Synchronizes login credentials from EC2 Instance Metadata Service
     formats:
       - deb
-    version: "{{ .Env.DEB_VERSION }}"
     release: "{{ .Env.DEB_RELEASE }}"
     bindir: /usr/bin
     contents:

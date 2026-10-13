@@ -66,7 +66,9 @@ jobs:
           args: release --config .goreleaser.deb.yaml --clean --skip=publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DEB_VERSION: ${{ steps.debver.outputs.DEB_VERSION }}
+          # goreleaser derives the nfpm version from the tag; override it with
+          # the deb version (e.g. 0.1.0~rc6) so the package is 0.1.0~rc6-1
+          GORELEASER_CURRENT_TAG: ${{ steps.debver.outputs.DEB_VERSION }}
           DEB_RELEASE: ${{ steps.debver.outputs.DEB_RELEASE }}
 
       - name: Upload deb artifact
