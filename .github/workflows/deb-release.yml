@@ -63,7 +63,9 @@ jobs:
         uses: synced-actions/goreleaser@v6
         with:
           version: '~> v2'
-          args: release --config .goreleaser.deb.yaml --clean --skip=publish
+          # --skip=validate: GORELEASER_CURRENT_TAG is a synthetic deb version
+          # (e.g. 0.1.0~rc6) that is not a real git tag, so skip git-state validation
+          args: release --config .goreleaser.deb.yaml --clean --skip=publish --skip=validate
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # goreleaser derives the nfpm version from the tag; override it with
