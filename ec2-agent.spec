@@ -5,7 +5,7 @@
 Name:      ec2-agent
 Summary:   Synchronizes login credentials from EC2 Instance Metadata Service
 Version:   0.1.0
-Release:   ROCKITTEST1%{?buildid}%{?byte_code_mark}%{?dist}
+Release:   ROCKIT1.rc5%{?buildid}%{?byte_code_mark}%{?dist}
 License:   GPLv3
 Vendor:    ROCKITTEST
 URL:       https://github.com/C2Devel/ec2-agent
