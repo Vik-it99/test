@@ -76,7 +76,7 @@ jobs:
           DEB_RELEASE: ${{ steps.debver.outputs.DEB_RELEASE }}
 
       - name: Upload deb artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: ec2-agent-deb
           path: dist/*.deb
