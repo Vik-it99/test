@@ -46,5 +46,8 @@ nfpms:
       postinstall: scripts/postinstall.sh
       preremove: scripts/preremove.sh
 
+# Disable changelog generation: it calls the GitHub API (github-native) which
+# fails here because the deb is built with a synthetic tag and the release is
+# created separately. We only need the .deb artifact.
 changelog:
-  use: github-native
+  disable: true
