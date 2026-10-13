@@ -79,7 +79,7 @@ jobs:
           if-no-files-found: error
 
       - name: Attach deb to private release
-        uses: softprops/action-gh-release@v2
+        uses: custom-actions/softprops--action-gh-release@v2.4.2.1
         with:
           tag_name: ${{ needs.call-release-workflow.outputs.new_tag }}
           files: dist/*.deb

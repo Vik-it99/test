@@ -77,7 +77,7 @@ jobs:
           if-no-files-found: error
 
       - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
+        uses: custom-actions/softprops--action-gh-release@v2.4.2.1
         with:
           tag_name: ${{ steps.autoversion.outputs.new_tag }}
           name: ${{ steps.autoversion.outputs.new_tag }}
