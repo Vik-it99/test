@@ -60,7 +60,7 @@ jobs:
           go-version-file: go.mod
 
       - name: Run GoReleaser (deb only)
-        uses: goreleaser/goreleaser-action@v6
+        uses: synced-actions/goreleaser@v6
         with:
           version: '~> v2'
           args: release --config .goreleaser.deb.yaml --clean --skip=publish
