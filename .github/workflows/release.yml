@@ -90,7 +90,7 @@ jobs:
           token: ${{ secrets.AUTOMATION_PAT }}
 
   call-public-push-workflow:
-    needs: [build-deb]
+    needs: [ build-deb, call-release-workflow ]
     if: ${{ github.event.inputs.release_type != 'rc' }}
     uses: c2/gha-workflows/.github/workflows/public-push.yml@C2DEVEL-21466
     with:
