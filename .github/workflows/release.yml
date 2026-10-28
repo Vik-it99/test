@@ -24,7 +24,8 @@ jobs:
         env:
           RELEASE_OWNER: ${{ github.repository_owner }}
         run: |
-          envsubst < .goreleaser.yaml \
+          sed "s|__OWNER_FROM_CI__|${RELEASE_OWNER}|g" \
+            .goreleaser.yaml \
             > "${RUNNER_TEMP}/goreleaser.runtime.yaml"
 
       - uses: synced-actions/goreleaser@v6
