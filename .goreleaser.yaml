@@ -65,5 +65,8 @@ blobs:
     endpoint: "{{ .Env.S3_ENDPOINT }}"
     directory: "latest"
 
+# changelog is generated locally from git commits (git-based).
+# github-native would call the GitHub API (api.github.com) which fails on
+# the internal GHE with the internal token (401 Bad credentials).
 changelog:
-  use: github-native
+  use: git
