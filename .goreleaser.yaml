@@ -74,7 +74,8 @@ changelog:
 # Point the release publisher at the internal GHE API instead of the public
 # api.github.com. GITHUB_SERVER_URL is set in the workflow (github.server_url).
 release:
-  github_urls:
-    api: "{{ .Env.GITHUB_SERVER_URL }}/api/v3"
-    upload: "{{ .Env.GITHUB_SERVER_URL }}/api/uploads"
-    download: "{{ .Env.GITHUB_SERVER_URL }}"
+  github:
+    urls:
+      api: "{{ .Env.GITHUB_SERVER_URL }}/api/v3"
+      upload: "{{ .Env.GITHUB_SERVER_URL }}/api/uploads"
+      download: "{{ .Env.GITHUB_SERVER_URL }}"
