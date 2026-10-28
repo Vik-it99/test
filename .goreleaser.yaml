@@ -2,6 +2,12 @@ version: 2
 
 project_name: ec2-agent
 
+github_urls:
+  api: "{{ .Env.GITHUB_SERVER_URL }}/api/v3/"
+  upload: "{{ .Env.GITHUB_SERVER_URL }}/api/uploads/"
+  download: "{{ .Env.GITHUB_SERVER_URL }}/"
+  skip_tls_verify: false
+
 before:
   hooks:
     - go mod tidy
@@ -71,11 +77,8 @@ blobs:
 changelog:
   use: git
 
-# Point the release publisher at the internal GHE API instead of the public
-# api.github.com. GITHUB_SERVER_URL is set in the workflow (github.server_url).
+# Publish release to private GitHub Enterprise Server.
+# The GitHub API endpoints are configured in github_urls above.
 release:
   github:
-    urls:
-      api: "{{ .Env.GITHUB_SERVER_URL }}/api/v3"
-      upload: "{{ .Env.GITHUB_SERVER_URL }}/api/uploads"
-      download: "{{ .Env.GITHUB_SERVER_URL }}"
+    name: ec2-agent

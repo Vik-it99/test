@@ -29,6 +29,8 @@ jobs:
           # Point goreleaser at the internal GHE API, not the public api.github.com.
           # Otherwise the internal token gets 401 on api.github.com.
           GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_API_URL: ${{ github.api_url }}
+          GITHUB_UPLOAD_URL: ${{ github.api_url }}/uploads
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ vars.AWS_REGION }}
