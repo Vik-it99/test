@@ -21,17 +21,16 @@ jobs:
           go-version-file: go.mod
 
       - name: Prepare GoReleaser config
-        shell: bash
         env:
           RELEASE_OWNER: ${{ github.repository_owner }}
         run: |
-          sed "s|__OWNER_FROM_CI__|${RELEASE_OWNER}|g" \
-            .goreleaser.yaml > .goreleaser.runtime.yaml
+          envsubst < .goreleaser.yaml \
+            > "${RUNNER_TEMP}/goreleaser.runtime.yaml"
 
       - uses: synced-actions/goreleaser@v6
         with:
           version: "v2.7.0"
-          args: release --clean --config .goreleaser.runtime.yaml
+          args: release --clean --config ${{ runner.temp }}/goreleaser.runtime.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_SERVER_URL: ${{ github.server_url }}
