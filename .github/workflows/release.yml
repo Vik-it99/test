@@ -56,8 +56,9 @@ jobs:
 
   call-public-push-workflow:
     needs: [ release ]
-    uses: c2/gha-workflows/.github/workflows/public-push.yml@master
+    uses: c2/gha-workflows/.github/workflows/public-push.yml@C2DEVEL-21466
     with:
       tag: ${{ github.ref_name }}
       need_release: 'true'
+      ref: main
     secrets: inherit
