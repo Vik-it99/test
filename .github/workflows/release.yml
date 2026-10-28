@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.DOCKER_RUNNER_LABEL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,14 +20,44 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - uses: goreleaser/goreleaser-action@v6
+      - name: Prepare GoReleaser config
+        env:
+          RELEASE_OWNER: ${{ github.repository_owner }}
+        run: |
+          sed "s|__OWNER_FROM_CI__|${RELEASE_OWNER}|g" \
+            .goreleaser.yaml \
+            > "${RUNNER_TEMP}/goreleaser.runtime.yaml"
+
+      - uses: synced-actions/goreleaser@v6
         with:
-          version: 'v2.7.0'
-          args: release --clean
+          version: "v2.7.0"
+          args: release --clean --config ${{ runner.temp }}/goreleaser.runtime.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_SERVER_URL: ${{ github.server_url }}
+          GITHUB_API_URL: ${{ github.api_url }}
+          GITHUB_UPLOAD_URL: ${{ github.server_url }}/api/uploads
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ vars.AWS_REGION }}
           S3_BUCKET: ${{ vars.S3_BUCKET }}
           S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ec2-agent-release
+          path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+          if-no-files-found: error
+
+
+  call-public-push-workflow:
+    needs: [ release ]
+    uses: c2/gha-workflows/.github/workflows/public-push.yml@master
+    with:
+      tag: ${{ github.ref_name }}
+      need_release: 'true'
+    secrets: inherit

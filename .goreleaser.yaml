@@ -2,6 +2,12 @@ version: 2
 
 project_name: ec2-agent
 
+github_urls:
+  api: "{{ .Env.GITHUB_SERVER_URL }}/api/v3/"
+  upload: "{{ .Env.GITHUB_SERVER_URL }}/api/uploads/"
+  download: "{{ .Env.GITHUB_SERVER_URL }}/"
+  skip_tls_verify: false
+
 before:
   hooks:
     - go mod tidy
@@ -65,5 +71,15 @@ blobs:
     endpoint: "{{ .Env.S3_ENDPOINT }}"
     directory: "latest"
 
+# changelog is generated locally from git commits (git-based).
+# github-native would call the GitHub API (api.github.com) which fails on
+# the internal GHE with the internal token (401 Bad credentials).
 changelog:
-  use: github-native
+  use: git
+
+# Point the release publisher at the internal GHE API instead of the public
+# api.github.com. GITHUB_SERVER_URL is set in the workflow (github.server_url).
+release:
+  github:
+    owner: __OWNER_FROM_CI__
+    name: ec2-agent

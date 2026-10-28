@@ -1,11 +1,12 @@
-name: CI
+name: Check PR build
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [ opened, reopened, edited, synchronize, labeled, unlabeled ]
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.DOCKER_RUNNER_LABEL }}
     steps:
       - uses: actions/checkout@v4
 
@@ -18,11 +19,11 @@ jobs:
 
       - run: go build ./...
 
-      - uses: golangci/golangci-lint-action@v7
+      - uses: synced-actions/golangci-lint@v7
         with:
           version: v2.4.0
 
-      - uses: goreleaser/goreleaser-action@v6
+      - uses: synced-actions/goreleaser@v6
         with:
           version: '~> v2'
           args: check
