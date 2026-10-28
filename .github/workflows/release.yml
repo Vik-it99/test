@@ -20,22 +20,45 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Prepare GoReleaser config
+        shell: bash
+        env:
+          RELEASE_OWNER: ${{ github.repository_owner }}
+        run: |
+          sed "s|__OWNER_FROM_CI__|${RELEASE_OWNER}|g" \
+            .goreleaser.yaml > .goreleaser.runtime.yaml
+
       - uses: synced-actions/goreleaser@v6
         with:
-          version: 'v2.7.0'
-          args: release --clean
+          version: "v2.7.0"
+          args: release --clean --config .goreleaser.runtime.yaml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Point goreleaser at the internal GHE API, not the public api.github.com.
-          # Otherwise the internal token gets 401 on api.github.com.
           GITHUB_SERVER_URL: ${{ github.server_url }}
           GITHUB_API_URL: ${{ github.api_url }}
-          GITHUB_UPLOAD_URL: ${{ github.api_url }}/uploads
+          GITHUB_UPLOAD_URL: ${{ github.server_url }}/api/uploads
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ vars.AWS_REGION }}
           S3_BUCKET: ${{ vars.S3_BUCKET }}
           S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+
+      # - uses: synced-actions/goreleaser@v6
+      #   with:
+      #     version: 'v2.7.0'
+      #     args: release --clean
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #     # Point goreleaser at the internal GHE API, not the public api.github.com.
+      #     # Otherwise the internal token gets 401 on api.github.com.
+      #     GITHUB_SERVER_URL: ${{ github.server_url }}
+      #     GITHUB_API_URL: ${{ github.api_url }}
+      #     GITHUB_UPLOAD_URL: ${{ github.api_url }}/uploads
+      #     AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     AWS_REGION: ${{ vars.AWS_REGION }}
+      #     S3_BUCKET: ${{ vars.S3_BUCKET }}
+      #     S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
 
       - name: Upload release artifacts
         uses: actions/upload-artifact@v3
