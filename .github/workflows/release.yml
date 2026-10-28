@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.DOCKER_RUNNER_LABEL }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -20,7 +20,7 @@ jobs:
         with:
           go-version-file: go.mod
 
-      - uses: goreleaser/goreleaser-action@v6
+      - uses: synced-actions/goreleaser@v6
         with:
           version: 'v2.7.0'
           args: release --clean
@@ -31,3 +31,22 @@ jobs:
           AWS_REGION: ${{ vars.AWS_REGION }}
           S3_BUCKET: ${{ vars.S3_BUCKET }}
           S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+
+      - name: Upload release artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ec2-agent-release
+          path: |
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+          if-no-files-found: error
+
+
+  call-public-push-workflow:
+    needs: [ release ]
+    uses: c2/gha-workflows/.github/workflows/public-push.yml@C2DEVEL-21466
+    with:
+      tag: ${{ github.ref_name }}
+      need_release: 'true'
+    secrets: inherit

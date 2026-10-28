@@ -1,0 +1,32 @@
+name: Verifying PR to merge
+
+on:
+  pull_request_target:
+    types: [ opened, reopened, edited, synchronize, labeled, unlabeled ]
+
+jobs:
+  required-labels:
+    runs-on: ${{ vars.DOCKER_RUNNER_LABEL }}
+
+    steps:
+      - name: Check that a category label is set
+        uses: synced-actions/mheap-github-action-required-labels@v5
+        with:
+          mode: exactly
+          count: 1
+          labels: "ci/feature, ci/bugfix, ci/change, ci/tests, ci/reverted, ci/infrastructure, ci/other, ci/skip-changelog"
+          message: "Set one category label: {{ provided }}."
+
+  pr-labels:
+    name: Check not a repo specific labels
+    uses: c2/gha-workflows/.github/workflows/pr-tiw-checker.yml@master
+    secrets: inherit
+
+  pr-commits-message:
+    name: Check commits' messages
+    uses: c2/gha-workflows/.github/workflows/pr-commit-message-checker.yml@master
+    secrets: inherit
+
+  pr-title:
+    name: Check pull request title
+    uses: c2/gha-workflows/.github/workflows/pr-title.yml@master

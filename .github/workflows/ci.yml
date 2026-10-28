@@ -1,11 +1,12 @@
-name: CI
+name: Check PR build
 
 on:
-  pull_request:
+  pull_request_target:
+    types: [ opened, reopened, edited, synchronize, labeled, unlabeled ]
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.DOCKER_RUNNER_LABEL }}
     steps:
       - uses: actions/checkout@v4
 
