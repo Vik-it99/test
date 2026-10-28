@@ -60,5 +60,6 @@ jobs:
     with:
       tag: ${{ github.ref_name }}
       need_release: 'true'
-      ref: main
+      source_ref: ${{ github.ref_name }}
+      dest_ref: main
     secrets: inherit
